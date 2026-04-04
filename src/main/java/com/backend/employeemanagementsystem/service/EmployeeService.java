@@ -10,6 +10,8 @@ import com.backend.employeemanagementsystem.exception.DuplicateResourceException
 import com.backend.employeemanagementsystem.exception.ResourceNotFoundException;
 import com.backend.employeemanagementsystem.repository.DepartmentRepository;
 import com.backend.employeemanagementsystem.repository.EmployeeRepository;
+import com.backend.employeemanagementsystem.repository.EmployeeSpecifications;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -50,10 +52,19 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<EmployeeResponse> getEmployees(int page, int size, String sortBy, String sortDirection) {
+    public PagedResponse<EmployeeResponse> getEmployees(String name, String email, String jobTitle, Long departmentId, int page, int size, String sortBy, String sortDirection) {
         Sort sort = Sort.by(resolveSortDirection(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Employee> employeePage = employeeRepository.findAll(pageable);
+
+        Specification<Employee> specification = Specification.where(EmployeeSpecifications.hasName(name))
+                .and(EmployeeSpecifications.hasEmail(email))
+                .and(EmployeeSpecifications.hasJobTitle(jobTitle))
+                .and(EmployeeSpecifications.hasDepartmentId(departmentId));
+
+        Page<Employee> employeePage = employeeRepository.findAll(
+                specification,
+                pageable
+        );
 
         return new PagedResponse<>(
                 employeePage.getContent()

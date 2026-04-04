@@ -35,11 +35,15 @@ public class EmployeeController {
 
     @GetMapping
     public PagedResponse<EmployeeResponse> getEmployees(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String jobTitle,
+            @RequestParam(required = false) Long departmentId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
-        return employeeService.getEmployees(page, size, sortBy, sortDirection);
+        return employeeService.getEmployees(name, email, jobTitle, departmentId, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

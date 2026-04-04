@@ -118,6 +118,154 @@ class EmployeeControllerIntegrationTest {
     }
 
     @Test
+    void shouldFilterEmployeesByName() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("name", "lic"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].firstName").value("Alicia"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldFilterEmployeesByEmail() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("email", "ben.lee"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value("ben.lee@example.com"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldFilterEmployeesByJobTitle() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("jobTitle", "developer"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].jobTitle").value("Backend Developer"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldFilterEmployeesByDepartmentId() throws Exception {
+        Department financeDepartment = departmentRepository.save(new Department("Finance"));
+
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Fiona",
+                "Lim",
+                "fiona.lim@example.com",
+                "Finance Analyst",
+                new BigDecimal("4800.00"),
+                financeDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("departmentId", financeDepartment.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value("fiona.lim@example.com"))
+                .andExpect(jsonPath("$.content[0].department.name").value("Finance"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldCombineFiltersWhenListingEmployees() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Ng",
+                "alicia.ng@example.com",
+                "QA Engineer",
+                new BigDecimal("4300.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("name", "ali")
+                        .param("jobTitle", "backend"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value("alicia.tan@example.com"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoEmployeesMatchFilters() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("jobTitle", "designer"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
+    }
+
+    @Test
     void shouldReturnEmployeeById() throws Exception {
         Employee savedEmployee = employeeRepository.save(new Employee(
                 "Ben",
