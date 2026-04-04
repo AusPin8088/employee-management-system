@@ -69,8 +69,52 @@ class EmployeeControllerIntegrationTest {
 
         mockMvc.perform(get("/api/employees"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].email").value("alicia.tan@example.com"));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value("alicia.tan@example.com"))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
+    }
+
+    @Test
+    void shouldSupportPaginationAndSortingWhenListingEmployees() throws Exception {
+        employeeRepository.save(new Employee(
+                "Carla",
+                "Ng",
+                "carla.ng@example.com",
+                "Support Engineer",
+                new BigDecimal("3900.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment));
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "firstName")
+                        .param("sortDirection", "desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].firstName").value("Carla"))
+                .andExpect(jsonPath("$.content[1].firstName").value("Ben"))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(false));
     }
 
     @Test

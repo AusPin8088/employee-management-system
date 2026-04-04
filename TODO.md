@@ -6,7 +6,19 @@
 - [x] Add repositories, services, and controllers
 - [x] Add validation and global exception handling
 - [x] Add starter integration tests
+- [x] Add pagination and sorting for employee listing
 - [x] Install Java locally and run `.\mvnw test`
 - [x] Install MySQL locally and create the database
 - [x] Test CRUD endpoints manually with Postman or Bruno
-- [ ] Initialize GitHub remote and push the repository
+- [x] Initialize GitHub remote and push the repository
+- [ ] Add employee search and filtering
+- [ ] Add employee status such as `ACTIVE` and `INACTIVE`
+- [ ] Add audit timestamps
+- [ ] Add Swagger / OpenAPI
+- [ ] Improve README with architecture and request examples
+- [ ] Add stronger unhappy-path tests
+- [ ] Add Spring Security and JWT
+- [ ] Add role-based access control
+- [ ] Add Flyway migrations
+- [ ] Add Docker and `docker-compose`
+- [ ] Explore optional AI help assistant after core backend features are stronger
