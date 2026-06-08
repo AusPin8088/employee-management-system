@@ -324,6 +324,93 @@ class EmployeeControllerIntegrationTest {
     }
 
     @Test
+    void shouldRejectDuplicateEmployeeEmail() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+
+        String requestBody = employeePayload("Alicia", "Tan", "alicia.tan@example.com", "Backend Developer", "5200.00");
+
+        mockMvc.perform(post("/api/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Employee email already exists"));
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenCreatingEmployeeForMissingDepartment() throws Exception {
+        String requestBody = """
+                {
+                  "firstName": "Alicia",
+                  "lastName": "Tan",
+                  "email": "alicia.tan@example.com",
+                  "jobTitle": "Backend Developer",
+                  "salary": 5200.00,
+                  "departmentId": 999,
+                  "status": "ACTIVE"
+                }
+                """;
+
+        mockMvc.perform(post("/api/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Department not found with id 999"));
+    }
+
+    @Test
+    void shouldRejectInvalidEmployeeStatusInRequestBody() throws Exception {
+        String requestBody = """
+                {
+                  "firstName": "Alicia",
+                  "lastName": "Tan",
+                  "email": "alicia.tan@example.com",
+                  "jobTitle": "Backend Developer",
+                  "salary": 5200.00,
+                  "departmentId": %d,
+                  "status": "PAUSED"
+                }
+                """.formatted(engineeringDepartment.getId());
+
+        mockMvc.perform(post("/api/employees")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Malformed or invalid request body"));
+    }
+
+    @Test
+    void shouldRejectInvalidEmployeeStatusQueryParameter() throws Exception {
+        mockMvc.perform(get("/api/employees")
+                        .param("status", "PAUSED"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid value for parameter 'status'"));
+    }
+
+    @Test
+    void shouldRejectInvalidPaginationAndSortingParameters() throws Exception {
+        mockMvc.perform(get("/api/employees")
+                        .param("page", "-1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Page index must be zero or greater"));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("size", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Page size must be between 1 and 100"));
+
+        mockMvc.perform(get("/api/employees")
+                        .param("sortBy", "password"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Unsupported sort field: password"));
+    }
+
+    @Test
     void shouldUpdateEmployee() throws Exception {
         Employee savedEmployee = employeeRepository.save(new Employee(
                 "Carla",
@@ -353,6 +440,43 @@ class EmployeeControllerIntegrationTest {
     }
 
     @Test
+    void shouldReturnNotFoundWhenUpdatingMissingEmployee() throws Exception {
+        String requestBody = employeePayload("Carla", "Ng", "carla.ng@example.com", "Senior Support Engineer", "4500.00");
+
+        mockMvc.perform(put("/api/employees/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Employee not found with id 999"));
+    }
+
+    @Test
+    void shouldRejectDuplicateEmailWhenUpdatingEmployee() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        Employee savedEmployee = employeeRepository.save(new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment));
+
+        String requestBody = employeePayload("Ben", "Lee", "alicia.tan@example.com", "QA Engineer", "4200.00");
+
+        mockMvc.perform(put("/api/employees/{id}", savedEmployee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Employee email already exists"));
+    }
+
+    @Test
     void shouldDeleteEmployee() throws Exception {
         Employee savedEmployee = employeeRepository.save(new Employee(
                 "Daniel",
@@ -367,6 +491,13 @@ class EmployeeControllerIntegrationTest {
 
         mockMvc.perform(get("/api/employees/{id}", savedEmployee.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenDeletingMissingEmployee() throws Exception {
+        mockMvc.perform(delete("/api/employees/{id}", 999L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Employee not found with id 999"));
     }
 
     @Test

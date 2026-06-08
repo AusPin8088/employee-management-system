@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -51,5 +53,30 @@ public class GlobalExceptionHandler {
                 request.getRequestURI(),
                 validationErrors);
         return ResponseEntity.badRequest().body(apiError);
+    }
+
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            MethodArgumentTypeMismatchException.class,
+            HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<ApiError> handleBadRequest(Exception exception, HttpServletRequest request) {
+        ApiError apiError = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                resolveBadRequestMessage(exception),
+                request.getRequestURI(),
+                List.of());
+        return ResponseEntity.badRequest().body(apiError);
+    }
+
+    private String resolveBadRequestMessage(Exception exception) {
+        if (exception instanceof MethodArgumentTypeMismatchException mismatchException) {
+            return "Invalid value for parameter '" + mismatchException.getName() + "'";
+        }
+        if (exception instanceof HttpMessageNotReadableException) {
+            return "Malformed or invalid request body";
+        }
+        return exception.getMessage();
     }
 }

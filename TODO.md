@@ -16,8 +16,8 @@
 - [x] Add audit timestamps
 - [x] Add local H2 profile for quick demos without MySQL
 - [x] Improve README with architecture and request examples
-- [ ] Add stronger unhappy-path tests
-- [ ] Add Swagger / OpenAPI
+- [x] Add stronger unhappy-path tests
+- [x] Add Swagger / OpenAPI
 - [ ] Add Spring Security and JWT
 - [ ] Add role-based access control
 - [ ] Add Flyway migrations

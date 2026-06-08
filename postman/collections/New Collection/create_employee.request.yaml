@@ -6,9 +6,9 @@ body:
   type: json
   content: |-
     {
-      "firstName": "Alicia",
+      "firstName": "Alicia{{$randomInt}}",
       "lastName": "Tan",
-      "email": "alicia.tan@example.com",
+      "email": "alicia.tan{{$timestamp}}@example.com",
       "jobTitle": "Backend Developer",
       "salary": 5200.00,
       "departmentId": 1,

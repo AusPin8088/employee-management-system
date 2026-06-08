@@ -1,0 +1,5 @@
+$kind: http-request
+name: department_list
+url: http://localhost:8080/api/departments
+method: GET
+order: 4392401912902259

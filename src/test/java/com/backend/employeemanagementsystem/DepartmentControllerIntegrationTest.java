@@ -54,6 +54,39 @@ class DepartmentControllerIntegrationTest {
     }
 
     @Test
+    void shouldRejectDuplicateDepartmentName() throws Exception {
+        departmentRepository.save(new Department("Engineering"));
+
+        String requestBody = """
+                {
+                  "name": "engineering"
+                }
+                """;
+
+        mockMvc.perform(post("/api/departments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Department name already exists"));
+    }
+
+    @Test
+    void shouldRejectBlankDepartmentName() throws Exception {
+        String requestBody = """
+                {
+                  "name": ""
+                }
+                """;
+
+        mockMvc.perform(post("/api/departments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.validationErrors[0].field").value("name"));
+    }
+
+    @Test
     void shouldListDepartments() throws Exception {
         departmentRepository.save(new Department("Engineering"));
         departmentRepository.save(new Department("Finance"));

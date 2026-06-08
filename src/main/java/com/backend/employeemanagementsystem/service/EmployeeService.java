@@ -12,17 +12,30 @@ import com.backend.employeemanagementsystem.exception.ResourceNotFoundException;
 import com.backend.employeemanagementsystem.repository.DepartmentRepository;
 import com.backend.employeemanagementsystem.repository.EmployeeRepository;
 import com.backend.employeemanagementsystem.repository.EmployeeSpecifications;
-import org.springframework.data.jpa.domain.Specification;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 public class EmployeeService {
+
+    private static final int MAX_PAGE_SIZE = 100;
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "id",
+            "firstName",
+            "lastName",
+            "email",
+            "jobTitle",
+            "salary",
+            "status",
+            "createdAt",
+            "updatedAt");
 
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
@@ -56,7 +69,8 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public PagedResponse<EmployeeResponse> getEmployees(String name, String email, String jobTitle, Long departmentId,
             EmployeeStatus status, int page, int size, String sortBy, String sortDirection) {
-        Sort sort = Sort.by(resolveSortDirection(sortDirection), sortBy);
+        validatePageRequest(page, size);
+        Sort sort = Sort.by(resolveSortDirection(sortDirection), resolveSortBy(sortBy));
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Specification<Employee> specification = Specification.allOf(
@@ -129,6 +143,22 @@ public class EmployeeService {
 
     private Sort.Direction resolveSortDirection(String sortDirection) {
         return "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
+    }
+
+    private String resolveSortBy(String sortBy) {
+        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+            throw new IllegalArgumentException("Unsupported sort field: " + sortBy);
+        }
+        return sortBy;
+    }
+
+    private void validatePageRequest(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page index must be zero or greater");
+        }
+        if (size < 1 || size > MAX_PAGE_SIZE) {
+            throw new IllegalArgumentException("Page size must be between 1 and " + MAX_PAGE_SIZE);
+        }
     }
 
     private EmployeeStatus resolveStatus(EmployeeStatus status) {

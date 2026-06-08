@@ -10,6 +10,8 @@ A Spring Boot backend project for managing employees and departments through RES
 - Track employee status and audit timestamps
 - Validate request payloads
 - Return consistent API error responses
+- Reject duplicate records and invalid pagination/sorting inputs
+- Explore the API with Swagger UI and OpenAPI docs
 - Persist data with Spring Data JPA and MySQL
 - Run locally with an H2 in-memory database
 - Run integration tests against H2 in-memory database
@@ -21,6 +23,7 @@ A Spring Boot backend project for managing employees and departments through RES
 - Spring Web
 - Spring Data JPA
 - Bean Validation
+- Springdoc OpenAPI / Swagger UI
 - MySQL
 - Maven
 - JUnit 5 and MockMvc
@@ -44,6 +47,8 @@ A Spring Boot backend project for managing employees and departments through RES
 - `GET /api/employees/{id}`
 - `PUT /api/employees/{id}`
 - `DELETE /api/employees/{id}`
+- `GET /v3/api-docs`
+- `GET /swagger-ui/index.html`
 
 ### Employee list query parameters
 
@@ -92,6 +97,12 @@ GET /api/employees?status=ACTIVE&page=0&size=5&sortBy=firstName&sortDirection=de
 DEBUG=false ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
+Swagger UI is available at:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
 4. For MySQL, create a database named `employee_management_system`.
 5. Set environment variables if your database credentials are not the defaults:
    - `DB_URL`
@@ -111,17 +122,13 @@ DEBUG=false ./mvnw spring-boot:run
 - Input validation and centralized exception handling
 - Employee filtering, pagination, and sorting
 - Employee status and audit timestamps
-- Basic integration testing for controller endpoints
+- Integration testing for happy paths and unhappy paths
+- Swagger UI and generated OpenAPI documentation
 
 ## Roadmap
 
-### Must-have backend improvements
-
-- Better README and broader test coverage
-
 ### Strong portfolio improvements
 
-- Swagger / OpenAPI
 - Soft delete or deactivation flow
 - Manager relationships
 - CSV export
