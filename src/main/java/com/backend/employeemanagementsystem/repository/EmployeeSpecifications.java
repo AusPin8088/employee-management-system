@@ -3,6 +3,7 @@ package com.backend.employeemanagementsystem.repository;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.backend.employeemanagementsystem.entity.Employee;
+import com.backend.employeemanagementsystem.entity.EmployeeStatus;
 
 
 public final class EmployeeSpecifications {
@@ -49,6 +50,15 @@ public final class EmployeeSpecifications {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.equal(root.get("department").get("id"), departmentId);
+        };
+    }
+
+    public static Specification<Employee> hasStatus(EmployeeStatus status) {
+        return (root, query, criteriaBuilder) -> {
+            if (status == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("status"), status);
         };
     }
 }

@@ -1,5 +1,6 @@
 package com.backend.employeemanagementsystem.dto;
 
+import com.backend.employeemanagementsystem.entity.EmployeeStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,17 +29,20 @@ public class EmployeeRequest {
     @NotNull(message = "Department is required")
     private Long departmentId;
 
+    private EmployeeStatus status;
+
     public EmployeeRequest() {
     }
 
     public EmployeeRequest(String firstName, String lastName, String email, String jobTitle,
-            BigDecimal salary, Long departmentId) {
+            BigDecimal salary, Long departmentId, EmployeeStatus status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.jobTitle = jobTitle;
         this.salary = salary;
         this.departmentId = departmentId;
+        this.status = status;
     }
 
     public String getFirstName() {
@@ -87,5 +91,13 @@ public class EmployeeRequest {
 
     public void setDepartmentId(Long departmentId) {
         this.departmentId = departmentId;
+    }
+
+    public EmployeeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EmployeeStatus status) {
+        this.status = status;
     }
 }

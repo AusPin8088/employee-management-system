@@ -6,6 +6,7 @@ import com.backend.employeemanagementsystem.dto.EmployeeResponse;
 import com.backend.employeemanagementsystem.dto.PagedResponse;
 import com.backend.employeemanagementsystem.entity.Department;
 import com.backend.employeemanagementsystem.entity.Employee;
+import com.backend.employeemanagementsystem.entity.EmployeeStatus;
 import com.backend.employeemanagementsystem.exception.DuplicateResourceException;
 import com.backend.employeemanagementsystem.exception.ResourceNotFoundException;
 import com.backend.employeemanagementsystem.repository.DepartmentRepository;
@@ -46,20 +47,24 @@ public class EmployeeService {
                 employeeRequest.getJobTitle().trim(),
                 employeeRequest.getSalary(),
                 department);
+        employee.setStatus(resolveStatus(employeeRequest.getStatus()));
 
         Employee savedEmployee = employeeRepository.save(employee);
         return mapEmployee(savedEmployee);
     }
 
     @Transactional(readOnly = true)
-    public PagedResponse<EmployeeResponse> getEmployees(String name, String email, String jobTitle, Long departmentId, int page, int size, String sortBy, String sortDirection) {
+    public PagedResponse<EmployeeResponse> getEmployees(String name, String email, String jobTitle, Long departmentId,
+            EmployeeStatus status, int page, int size, String sortBy, String sortDirection) {
         Sort sort = Sort.by(resolveSortDirection(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Specification<Employee> specification = Specification.where(EmployeeSpecifications.hasName(name))
-                .and(EmployeeSpecifications.hasEmail(email))
-                .and(EmployeeSpecifications.hasJobTitle(jobTitle))
-                .and(EmployeeSpecifications.hasDepartmentId(departmentId));
+        Specification<Employee> specification = Specification.allOf(
+                EmployeeSpecifications.hasName(name),
+                EmployeeSpecifications.hasEmail(email),
+                EmployeeSpecifications.hasJobTitle(jobTitle),
+                EmployeeSpecifications.hasDepartmentId(departmentId),
+                EmployeeSpecifications.hasStatus(status));
 
         Page<Employee> employeePage = employeeRepository.findAll(
                 specification,
@@ -100,6 +105,7 @@ public class EmployeeService {
         existingEmployee.setEmail(email);
         existingEmployee.setJobTitle(employeeRequest.getJobTitle().trim());
         existingEmployee.setSalary(employeeRequest.getSalary());
+        existingEmployee.setStatus(resolveStatus(employeeRequest.getStatus()));
         existingEmployee.setDepartment(department);
 
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
@@ -125,6 +131,10 @@ public class EmployeeService {
         return "desc".equalsIgnoreCase(sortDirection) ? Sort.Direction.DESC : Sort.Direction.ASC;
     }
 
+    private EmployeeStatus resolveStatus(EmployeeStatus status) {
+        return status == null ? EmployeeStatus.ACTIVE : status;
+    }
+
     private EmployeeResponse mapEmployee(Employee employee) {
         Department department = employee.getDepartment();
         DepartmentSummaryResponse departmentSummary = new DepartmentSummaryResponse(
@@ -138,6 +148,9 @@ public class EmployeeService {
                 employee.getEmail(),
                 employee.getJobTitle(),
                 employee.getSalary(),
-                departmentSummary);
+                employee.getStatus(),
+                departmentSummary,
+                employee.getCreatedAt(),
+                employee.getUpdatedAt());
     }
 }

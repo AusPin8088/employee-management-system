@@ -11,12 +11,13 @@
 - [x] Install MySQL locally and create the database
 - [x] Test CRUD endpoints manually with Postman or Bruno
 - [x] Initialize GitHub remote and push the repository
-- [ ] Add employee search and filtering
-- [ ] Add employee status such as `ACTIVE` and `INACTIVE`
-- [ ] Add audit timestamps
-- [ ] Add Swagger / OpenAPI
-- [ ] Improve README with architecture and request examples
+- [x] Add employee search and filtering
+- [x] Add employee status such as `ACTIVE` and `INACTIVE`
+- [x] Add audit timestamps
+- [x] Add local H2 profile for quick demos without MySQL
+- [x] Improve README with architecture and request examples
 - [ ] Add stronger unhappy-path tests
+- [ ] Add Swagger / OpenAPI
 - [ ] Add Spring Security and JWT
 - [ ] Add role-based access control
 - [ ] Add Flyway migrations

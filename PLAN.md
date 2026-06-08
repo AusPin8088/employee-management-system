@@ -4,14 +4,12 @@
 
 - Base CRUD for employees and departments is complete
 - Validation, centralized exception handling, integration tests, and employee pagination/sorting are in place
+- Employee filtering, status, audit timestamps, and a local H2 run profile are in place
 - The next goal is to grow this from a basic CRUD project into a more realistic backend portfolio system
 
 ## Phase 1: Must-have backend upgrades
 
-- Add employee search and filtering by name, email, job title, department, and status
-- Add employee status fields such as `ACTIVE` and `INACTIVE`
-- Add audit timestamps like `createdAt` and `updatedAt`
-- Improve README with clearer setup, API examples, and architecture notes
+- Keep improving README with clearer setup, API examples, and architecture notes
 - Keep expanding tests for unhappy paths and listing behavior
 
 ## Phase 2: Strong portfolio features
@@ -42,10 +40,8 @@
 
 ## Priority order
 
-1. Search and filtering
-2. Employee status and audit timestamps
-3. Swagger / OpenAPI
-4. Stronger tests and README improvements
-5. Security with JWT and RBAC
-6. Docker and Flyway
-7. Optional AI assistant
+1. Swagger / OpenAPI
+2. Stronger tests and README improvements
+3. Security with JWT and RBAC
+4. Docker and Flyway
+5. Optional AI assistant

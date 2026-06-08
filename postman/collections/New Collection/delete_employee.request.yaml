@@ -1,0 +1,5 @@
+$kind: http-request
+name: delete_employee
+url: http://localhost:8080/api/employees/1
+method: DELETE
+order: 4461621747003952

@@ -2,6 +2,7 @@ package com.backend.employeemanagementsystem;
 
 import com.backend.employeemanagementsystem.entity.Department;
 import com.backend.employeemanagementsystem.entity.Employee;
+import com.backend.employeemanagementsystem.entity.EmployeeStatus;
 import com.backend.employeemanagementsystem.repository.DepartmentRepository;
 import com.backend.employeemanagementsystem.repository.EmployeeRepository;
 import java.math.BigDecimal;
@@ -54,7 +55,10 @@ class EmployeeControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.firstName").value("Alicia"))
-                .andExpect(jsonPath("$.department.name").value("Engineering"));
+                .andExpect(jsonPath("$.status").value("ACTIVE"))
+                .andExpect(jsonPath("$.department.name").value("Engineering"))
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.updatedAt").exists());
     }
 
     @Test
@@ -71,6 +75,9 @@ class EmployeeControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
                 .andExpect(jsonPath("$.content[0].email").value("alicia.tan@example.com"))
+                .andExpect(jsonPath("$.content[0].status").value("ACTIVE"))
+                .andExpect(jsonPath("$.content[0].createdAt").exists())
+                .andExpect(jsonPath("$.content[0].updatedAt").exists())
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(10))
                 .andExpect(jsonPath("$.totalElements").value(1))
@@ -221,6 +228,34 @@ class EmployeeControllerIntegrationTest {
     }
 
     @Test
+    void shouldFilterEmployeesByStatus() throws Exception {
+        employeeRepository.save(new Employee(
+                "Alicia",
+                "Tan",
+                "alicia.tan@example.com",
+                "Backend Developer",
+                new BigDecimal("5200.00"),
+                engineeringDepartment));
+        Employee inactiveEmployee = new Employee(
+                "Ben",
+                "Lee",
+                "ben.lee@example.com",
+                "QA Engineer",
+                new BigDecimal("4200.00"),
+                engineeringDepartment);
+        inactiveEmployee.setStatus(EmployeeStatus.INACTIVE);
+        employeeRepository.save(inactiveEmployee);
+
+        mockMvc.perform(get("/api/employees")
+                        .param("status", "INACTIVE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value("ben.lee@example.com"))
+                .andExpect(jsonPath("$.content[0].status").value("INACTIVE"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
     void shouldCombineFiltersWhenListingEmployees() throws Exception {
         employeeRepository.save(new Employee(
                 "Alicia",
@@ -298,14 +333,23 @@ class EmployeeControllerIntegrationTest {
                 new BigDecimal("3900.00"),
                 engineeringDepartment));
 
-        String requestBody = employeePayload("Carla", "Ng", "carla.ng@example.com", "Senior Support Engineer", "4500.00");
+        String requestBody = employeePayload(
+                "Carla",
+                "Ng",
+                "carla.ng@example.com",
+                "Senior Support Engineer",
+                "4500.00",
+                "INACTIVE");
 
         mockMvc.perform(put("/api/employees/{id}", savedEmployee.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.jobTitle").value("Senior Support Engineer"))
-                .andExpect(jsonPath("$.salary").value(4500.00));
+                .andExpect(jsonPath("$.salary").value(4500.00))
+                .andExpect(jsonPath("$.status").value("INACTIVE"))
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.updatedAt").exists());
     }
 
     @Test
@@ -363,5 +407,27 @@ class EmployeeControllerIntegrationTest {
                 jobTitle,
                 salary,
                 engineeringDepartment.getId());
+    }
+
+    private String employeePayload(String firstName, String lastName, String email, String jobTitle, String salary,
+            String status) {
+        return """
+                {
+                  "firstName": "%s",
+                  "lastName": "%s",
+                  "email": "%s",
+                  "jobTitle": "%s",
+                  "salary": %s,
+                  "departmentId": %d,
+                  "status": "%s"
+                }
+                """.formatted(
+                firstName,
+                lastName,
+                email,
+                jobTitle,
+                salary,
+                engineeringDepartment.getId(),
+                status);
     }
 }

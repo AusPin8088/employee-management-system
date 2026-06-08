@@ -1,0 +1,11 @@
+$kind: http-request
+name: create_departments
+url: http://localhost:8080/api/departments
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "name": "Engineering"
+    }
+order: 2122994205937632

@@ -6,9 +6,12 @@ A Spring Boot backend project for managing employees and departments through RES
 
 - Create, list, get, update, and delete employees
 - Create and list departments
+- Filter employees by name, email, job title, department, and status
+- Track employee status and audit timestamps
 - Validate request payloads
 - Return consistent API error responses
 - Persist data with Spring Data JPA and MySQL
+- Run locally with an H2 in-memory database
 - Run integration tests against H2 in-memory database
 
 ## Tech Stack
@@ -48,11 +51,16 @@ A Spring Boot backend project for managing employees and departments through RES
 - `size` default `10`
 - `sortBy` default `id`
 - `sortDirection` default `asc`
+- `name`
+- `email`
+- `jobTitle`
+- `departmentId`
+- `status` supports `ACTIVE` or `INACTIVE`
 
 Example:
 
 ```text
-GET /api/employees?page=0&size=5&sortBy=firstName&sortDirection=desc
+GET /api/employees?status=ACTIVE&page=0&size=5&sortBy=firstName&sortDirection=desc
 ```
 
 ## Example Employee Payload
@@ -64,28 +72,35 @@ GET /api/employees?page=0&size=5&sortBy=firstName&sortDirection=desc
   "email": "alicia.tan@example.com",
   "jobTitle": "Backend Developer",
   "salary": 5200.00,
-  "departmentId": 1
+  "departmentId": 1,
+  "status": "ACTIVE"
 }
 ```
 
 ## Local Setup
 
 1. Install JDK 17 and verify `java -version`.
-2. Create a MySQL database named `employee_management_system`.
-3. Set environment variables if your database credentials are not the defaults:
+2. Run tests:
+
+```bash
+./mvnw test
+```
+
+3. Start the application with the local H2 profile:
+
+```bash
+DEBUG=false ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+4. For MySQL, create a database named `employee_management_system`.
+5. Set environment variables if your database credentials are not the defaults:
    - `DB_URL`
    - `DB_USERNAME`
    - `DB_PASSWORD`
-4. Run tests:
+6. Start the application with the default profile:
 
-```powershell
-.\mvnw test
-```
-
-5. Start the application:
-
-```powershell
-.\mvnw spring-boot:run
+```bash
+DEBUG=false ./mvnw spring-boot:run
 ```
 
 ## What This Project Demonstrates
@@ -94,15 +109,14 @@ GET /api/employees?page=0&size=5&sortBy=firstName&sortDirection=desc
 - JPA entity relationships
 - CRUD REST API design
 - Input validation and centralized exception handling
-- Pagination and sorting for employee listing
+- Employee filtering, pagination, and sorting
+- Employee status and audit timestamps
 - Basic integration testing for controller endpoints
 
 ## Roadmap
 
 ### Must-have backend improvements
 
-- Employee search and filtering
-- Employee status and audit timestamps
 - Better README and broader test coverage
 
 ### Strong portfolio improvements

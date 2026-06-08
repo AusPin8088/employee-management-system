@@ -1,0 +1,17 @@
+$kind: http-request
+name: create_employee
+url: http://localhost:8080/api/employees
+method: POST
+body:
+  type: json
+  content: |-
+    {
+      "firstName": "Alicia",
+      "lastName": "Tan",
+      "email": "alicia.tan@example.com",
+      "jobTitle": "Backend Developer",
+      "salary": 5200.00,
+      "departmentId": 1,
+      "status": "ACTIVE"
+    }
+order: 4390481469176092

@@ -3,6 +3,7 @@ package com.backend.employeemanagementsystem.controller;
 import com.backend.employeemanagementsystem.dto.EmployeeRequest;
 import com.backend.employeemanagementsystem.dto.EmployeeResponse;
 import com.backend.employeemanagementsystem.dto.PagedResponse;
+import com.backend.employeemanagementsystem.entity.EmployeeStatus;
 import com.backend.employeemanagementsystem.service.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -39,11 +40,12 @@ public class EmployeeController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String jobTitle,
             @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) EmployeeStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
-        return employeeService.getEmployees(name, email, jobTitle, departmentId, page, size, sortBy, sortDirection);
+        return employeeService.getEmployees(name, email, jobTitle, departmentId, status, page, size, sortBy, sortDirection);
     }
 
     @GetMapping("/{id}")

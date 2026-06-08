@@ -2,6 +2,7 @@ package com.backend.employeemanagementsystem;
 
 import com.backend.employeemanagementsystem.entity.Department;
 import com.backend.employeemanagementsystem.repository.DepartmentRepository;
+import com.backend.employeemanagementsystem.repository.EmployeeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,12 @@ class DepartmentControllerIntegrationTest {
     @Autowired
     private DepartmentRepository departmentRepository;
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
     @BeforeEach
     void setUp() {
+        employeeRepository.deleteAll();
         departmentRepository.deleteAll();
     }
 

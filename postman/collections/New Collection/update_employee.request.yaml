@@ -1,0 +1,16 @@
+$kind: http-request
+name: update_employee
+url: http://localhost:8080/api/employees/1
+method: PUT
+body:
+  type: json
+  content: |-
+    {
+      "firstName": "Alicia",
+      "lastName": "Tan",
+      "email": "alicia.tan@example.com",
+      "jobTitle": "Senior Backend Developer",
+      "salary": 6500.00,
+      "departmentId": 1
+    }
+order: 4443475368819337
