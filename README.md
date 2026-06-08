@@ -25,6 +25,7 @@ A Spring Boot backend project for managing employees and departments through RES
 - Bean Validation
 - Springdoc OpenAPI / Swagger UI
 - MySQL
+- Docker and Docker Compose
 - Maven
 - JUnit 5 and MockMvc
 
@@ -114,6 +115,44 @@ http://localhost:8080/swagger-ui/index.html
 DEBUG=false ./mvnw spring-boot:run
 ```
 
+## Docker Setup
+
+Run the API and MySQL together:
+
+```bash
+docker compose up --build
+```
+
+If port `8080` is already in use:
+
+```bash
+APP_PORT=8081 docker compose up --build
+```
+
+Then open:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+When using `APP_PORT=8081`, open:
+
+```text
+http://localhost:8081/swagger-ui/index.html
+```
+
+Stop the containers:
+
+```bash
+docker compose down
+```
+
+Remove the MySQL data volume if you want a fresh database:
+
+```bash
+docker compose down -v
+```
+
 ## What This Project Demonstrates
 
 - Layered Spring Boot application structure
@@ -124,6 +163,7 @@ DEBUG=false ./mvnw spring-boot:run
 - Employee status and audit timestamps
 - Integration testing for happy paths and unhappy paths
 - Swagger UI and generated OpenAPI documentation
+- Containerized local setup with Docker Compose and MySQL
 
 ## Roadmap
 
@@ -133,7 +173,7 @@ DEBUG=false ./mvnw spring-boot:run
 - Manager relationships
 - CSV export
 - Flyway migrations
-- Docker setup
+- Service split into employee-service and department-service
 
 ### Optional future extension
 

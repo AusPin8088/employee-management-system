@@ -21,5 +21,6 @@
 - [ ] Add Spring Security and JWT
 - [ ] Add role-based access control
 - [ ] Add Flyway migrations
-- [ ] Add Docker and `docker-compose`
+- [x] Add Docker and `docker-compose`
+- [ ] Explore service split into employee-service and department-service
 - [ ] Explore optional AI help assistant after core backend features are stronger
